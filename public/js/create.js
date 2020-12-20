@@ -35,7 +35,13 @@ function submitForm(){
                 name
             },
             success: (res)=>{
-                window.alert("Success!");
+                if(res.status){
+                    window.alert("Account Created!");
+                    window.location.replace("/");
+                }else{
+                    warning.style.display = "block";
+                    warning.innerHTML += res.message;
+                }
             },
             error: (err)=>{
                 window.alert("Something went wrong :(");

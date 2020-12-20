@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload your content</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js" integrity="sha384-q2kxQ16AaE6UbzuKqyBE9/u/KzioAlnx2maXQHiDX9d4/zp8Ok3f+M7DPm+Ib6IU" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.min.js" integrity="sha384-pQQkAEnwaBkjpqZ8RU1fF1AKtTcHJwFl3pblpTlHXybJjHpMYo79HY3hIi4NKxyj" crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script defer src="/js/upload.js"></script>
+    <script src="/js/lib/ajax.js"></script>
+</head>
+<body>
+    <p class="text-center fs-1">Upload</p>
+    <div class="container mb-3">
+        <div id="upload-form">
+            <label for="file" class="form-label">Upload a file (.png, .jpg, .mp4)</label>
+            <input class="form-control" type="file" name="file" id="fileInput">
+            <br>
+            <div class="col-auto">
+                <button type="button" class="btn btn-primary mb-3" onclick="uploadFile()">Upload!</button>
+            </div>
+            <div>
+                <progress id="progress" value="0" max="100" style="display: none;"></progress>
+            </div>
+        </div>
+        <div id="message" style="display: none;">
+            <div id="alert-container" class="alert alert-success" role="alert">
+                <span id="alert-text"></span>
+            </div>
+            <!-- Contains URL -->
+            <input type="hidden" name="copy-link" id="copy-link" value="">
+            <!-- Copy Button -->
+            <button type="button" id="copy-button" class="btn btn-primary" onclick="copyLink()">Copy Link</button>
+            <!-- Go to Page -->
+            <a href="" style="display: none;" id="url-link" target="_blank"></a>
+            <button type="button" class="btn btn-primary" onclick="openLink()">View Video</button>
+            <br>
+            <br>
+            <button type="button" class="btn btn-primary" onclick="window.location.href='/me'">View Uploads</button>
+        </div>
+      </div>
+</body>
+</html>
