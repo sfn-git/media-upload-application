@@ -123,7 +123,7 @@ app.post("/upload", ensuredAuthenticated, (req,res)=>{
     var randomString = require("randomstring");
 
     form.on('file', async (field, file)=>{
-        form.uploadDir = path.join(__dirname, '/public/content');
+        form.uploadDir = path.join(__dirname, '/content');
         var fileExt = path.extname(file.name);
         var unique = randomString.generate(8);
         var fileName = `${unique}_${Date.now()}${fileExt}`;

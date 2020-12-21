@@ -116,4 +116,4 @@ dist
 .pnp.*
 
 db/
-public/content
+content/
