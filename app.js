@@ -116,7 +116,7 @@ app.post("/upload", ensuredAuthenticated, (req,res)=>{
 
     form.maxFileSize = 2000*1024*1024;
     form.multiples = false;
-    form.uploadDir = path.join(__dirname, '/public/content');
+    form.uploadDir = path.join(__dirname, '/content');
 
     var URL;
 
@@ -181,7 +181,7 @@ app.delete("/video", ensuredAuthenticatedAPI, async (req, res)=>{
     var user = await User.findById(req.user.id);
     var dbRemove = true;
 
-    var fileName = path.join(path.join(__dirname,"/public/content"),getFileName(id, user.videos));
+    var fileName = path.join(path.join(__dirname,"/content"),getFileName(id, user.videos));
     if(fs.existsSync(fileName)){
         try{
             fs.unlinkSync(fileName);
@@ -206,7 +206,7 @@ app.delete("/photo", ensuredAuthenticatedAPI, async (req, res)=>{
     var user = await User.findById(req.user.id);
     var dbRemove = true;
 
-    var fileName = path.join(path.join(__dirname,"/public/content"),getFileName(id, user.videos));
+    var fileName = path.join(path.join(__dirname,"/content"),getFileName(id, user.videos));
     if(fs.existsSync(fileName)){
         try{
             fs.unlinkSync(fileName);
