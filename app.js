@@ -27,6 +27,7 @@ app.use(session({
 // Passport
 const passport = require("passport");
 const ensuredAuthenticated = require("./config/ensuredAuthenticated");
+const ensuredAuthenticatedAPI = require("./config/ensuredAuthenticatedAPI");
 var LocalStrategy = require("passport-local").Strategy;
 passport.use(new LocalStrategy(
     (username, password, done) =>{
@@ -66,7 +67,7 @@ app.get("/", (req,res)=>{
 });
 
 app.post("/login", passport.authenticate('local', {failureRedirect: "/"}),(req,res)=>{
-    res.redirect("/home");
+    res.redirect("/me");
 });
 
 app.get("/create", (req,res)=>{
@@ -119,10 +120,12 @@ app.post("/upload", ensuredAuthenticated, (req,res)=>{
 
     var URL;
 
+    var randomString = require("randomstring");
+
     form.on('file', async (field, file)=>{
         form.uploadDir = path.join(__dirname, '/public/content');
         var fileExt = path.extname(file.name);
-        var fileName = `${Date.now()}${fileExt}`;
+        var fileName = `${randomString.generate(8)}_${Date.now()}${fileExt}`;
         var filePath = path.join(form.uploadDir, fileName);
         fs.renameSync(file.path, filePath);
 
@@ -131,10 +134,18 @@ app.post("/upload", ensuredAuthenticated, (req,res)=>{
 
         if(fileExt == ".mp4"){
             try {
-                await User.findByIdAndUpdate(req.user.id, {$push: {videos: URL}});
+                await User.findByIdAndUpdate(req.user.id, {$push: {videos: {url: URL, fileName}}});
             } catch (error) {
                 throw error;
             }
+        }else if(fileExt == ".jpg" || fileExt == ".png"){
+            try {
+                await User.findByIdAndUpdate(req.user.id, {$push: {photos: {url: URL, fileName}}});
+            } catch (error) {
+                throw error;
+            }
+        }else{
+            throw new Error("File type doesn't match");
         }
     });
 
@@ -151,4 +162,73 @@ app.post("/upload", ensuredAuthenticated, (req,res)=>{
 
 });
 
+app.get("/me", ensuredAuthenticated, async (req,res)=>{
+
+    var user = await User.findById(req.user.id);
+    res.render("me", {user, videos: user.videos, photos: user.photos});
+
+});
+
+app.get("/logout", (req,res)=>{
+    req.logOut();
+    res.redirect("/");
+});
+
+app.delete("/video", ensuredAuthenticatedAPI, async (req, res)=>{
+
+    var id = req.body.id;
+    var user = await User.findById(req.user.id);
+    var dbRemove = true;
+
+    var fileName = path.join(path.join(__dirname,"/public/content"),getFileName(id, user.videos));
+    if(fs.existsSync(fileName)){
+        try{
+            fs.unlinkSync(fileName);
+        }catch(e){
+            dbRemove = false;
+        }
+    }
+
+    if(dbRemove){
+        User.updateOne({_id: req.user.id}, {$pull: {videos: {_id: id}}}, (err, document)=>{
+            if(err){res.status(500).send("Error");}
+            
+            res.status(200).send("Deleted");
+        });
+    }
+
+});
+
+app.delete("/photo", ensuredAuthenticatedAPI, async (req, res)=>{
+
+    var id = req.body.id;
+    var user = await User.findById(req.user.id);
+    var dbRemove = true;
+
+    var fileName = path.join(path.join(__dirname,"/public/content"),getFileName(id, user.videos));
+    if(fs.existsSync(fileName)){
+        try{
+            fs.unlinkSync(fileName);
+        }catch(e){
+            dbRemove = false;
+        }
+    }
+
+    User.updateOne({_id: req.user.id}, {$pull: {photos: {_id: id}}}, (err, document)=>{
+        if(err){res.status(500).send("Error");}
+        res.status(200).send("Deleted");
+    });
+
+});
+
+
 app.listen(port, ()=>{console.log(`http://localhost:${port}`);});
+
+function getFileName(id, contentArray){
+    for(var i in contentArray){
+        if(contentArray[i]._id == id){
+            return contentArray[i].fileName;
+        }
+    }
+    return "dne";
+}

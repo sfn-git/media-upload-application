@@ -40,7 +40,7 @@ function uploadFile(){
         },
         error: (err)=>{
             console.log(err);
-            window.alert("Something went wrong :(");
+            window.alert("Something went wrong :(. Check your file types or try again later");
         }
     });
 
