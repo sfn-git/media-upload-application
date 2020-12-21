@@ -125,7 +125,8 @@ app.post("/upload", ensuredAuthenticated, (req,res)=>{
     form.on('file', async (field, file)=>{
         form.uploadDir = path.join(__dirname, '/public/content');
         var fileExt = path.extname(file.name);
-        var fileName = `${randomString.generate(8)}_${Date.now()}${fileExt}`;
+        var unique = randomString.generate(8);
+        var fileName = `${unique}_${Date.now()}${fileExt}`;
         var filePath = path.join(form.uploadDir, fileName);
         fs.renameSync(file.path, filePath);
 
@@ -134,13 +135,13 @@ app.post("/upload", ensuredAuthenticated, (req,res)=>{
 
         if(fileExt == ".mp4"){
             try {
-                await User.findByIdAndUpdate(req.user.id, {$push: {videos: {url: URL, fileName}}});
+                await User.findByIdAndUpdate(req.user.id, {$push: {videos: {url: URL, fileName, unique}}});
             } catch (error) {
                 throw error;
             }
         }else if(fileExt == ".jpg" || fileExt == ".png"){
             try {
-                await User.findByIdAndUpdate(req.user.id, {$push: {photos: {url: URL, fileName}}});
+                await User.findByIdAndUpdate(req.user.id, {$push: {photos: {url: URL, fileName, unique}}});
             } catch (error) {
                 throw error;
             }
