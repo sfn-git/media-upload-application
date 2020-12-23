@@ -158,10 +158,8 @@ app.post("/upload", ensuredAuthenticated, (req,res)=>{
     });
 
     form.on('end', ()=>{
-        res.send({success: true, URL});
+        res.send({success: true, URL: `${SITE_URL}/view/${unique}`});
     });
-
-    form.parse(req);
 
 });
 
