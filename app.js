@@ -4,6 +4,7 @@ const app = express();
 const port = process.env.PORT || 3000;
 const bcrypt = require("bcrypt");
 const formidable = require('formidable');
+const SITE_URL = process.env.SITE_URL;
 
 app.set("view engine", "ejs");
 app.use(express.static('public'));
@@ -130,7 +131,6 @@ app.post("/upload", ensuredAuthenticated, (req,res)=>{
         var filePath = path.join(form.uploadDir, fileName);
         fs.renameSync(file.path, filePath);
 
-        const SITE_URL = process.env.SITE_URL;
         URL = `${SITE_URL}/content/${fileName}`;
         var date = Date.now();
 
@@ -244,7 +244,7 @@ app.get("/view/:unique", async (req,res)=>{
             }
 
             if(content.type === "video"){
-                res.render("view", {video: content, user: user.name});
+                res.render("view", {video: content, user: user.name, site: SITE_URL});
             }else{
                 res.render("404");
             }
