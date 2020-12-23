@@ -27,7 +27,7 @@
                         <td><%= videos[i].date%></td>
                         <td><%= videos[i].fileName%></td>
                         <td></td>
-                        <td><a type="button" class="btn btn-primary" href="<%=videos[i].url%>" target="_blank">View</a></td>
+                        <td><a type="button" class="btn btn-primary" href="/view/<%=videos[i].unique%>" target="_blank">View</a></td>
                         <td><button type="button" class="btn btn-danger" onclick="deleteVideo('<%=videos[i].id%>')">Delete</button></td>
                     </tr>
                 <%}%>

@@ -8,16 +8,16 @@ var users = new mongoose.Schema({
     "photos": [{
         url: {type: String},
         name: {type: String},
-        date: {type: Date, default: Date.now()},
+        date: {type: Date},
         fileName: {type: String},
-        unique: {type: String}
+        unique: {type: String, unique: true}
     }],
     "videos": [{
         url: {type: String},
         name: {type: String},
-        date: {type: Date, default: Date.now()},
+        date: {type: Date},
         fileName: {type: String},
-        unique: {type: String}
+        unique: {type: String, unique: true}
     }],
     "rank": {type: String}
 

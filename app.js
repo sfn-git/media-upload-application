@@ -132,16 +132,18 @@ app.post("/upload", ensuredAuthenticated, (req,res)=>{
 
         const SITE_URL = process.env.SITE_URL;
         URL = `${SITE_URL}/content/${fileName}`;
+        var date = Date.now();
 
         if(fileExt == ".mp4"){
             try {
-                await User.findByIdAndUpdate(req.user.id, {$push: {videos: {url: URL, fileName, unique}}});
+                
+                await User.findByIdAndUpdate(req.user.id, {$push: {videos: {url: URL, fileName, unique, date}}});
             } catch (error) {
                 throw error;
             }
         }else if(fileExt == ".jpg" || fileExt == ".png"){
             try {
-                await User.findByIdAndUpdate(req.user.id, {$push: {photos: {url: URL, fileName, unique}}});
+                await User.findByIdAndUpdate(req.user.id, {$push: {photos: {url: URL, fileName, unique, date}}});
             } catch (error) {
                 throw error;
             }
@@ -222,6 +224,40 @@ app.delete("/photo", ensuredAuthenticatedAPI, async (req, res)=>{
 
 });
 
+app.get("/view/:unique", async (req,res)=>{
+
+    var unique = req.params.unique;
+
+    try {
+        var user = await User.find({videos: {$elemMatch: {unique}}});
+
+        if(user.length > 0){
+            var videos = user[0].videos;
+            var content;
+
+            for(var i in videos){
+                if(videos[i].unique == unique){
+                    content = videos[i];
+                    content.type = "video";
+                    break;
+                }
+            }
+
+            if(content.type === "video"){
+                res.render("view", {video: content, user: user.name});
+            }else{
+                res.render("404");
+            }
+
+        }else{
+            res.render("404");
+        }
+    } catch (error) {
+        console.log(error);
+        res.render("404");
+    }
+
+});
 
 app.listen(port, ()=>{console.log(`http://localhost:${port}`);});
 
