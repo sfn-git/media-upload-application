@@ -3,12 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta property="og:url" content="<%=site%>/<%= video.unique%>">>
+    <meta property="og:type" content="video.other">
+    <meta property="og:image" content="<%=video.thumbNailURL%>">
+    <meta property="og:url" content="<%=site%>/<%= video.unique%>">
     <meta property="og:video" content="<%= video.url%>" />
+    <meta property="og:video:url" content="<%= video.url%>" />
     <meta property="og:video:secure_url" content="<%= video.url%>" />
     <meta property="og:video:width" content="<%= video.width%>" id="metaWidth"/>
     <meta property="og:video:height" content="<%= video.height%>" id="metaHeight"/>
-    <meta property="og:type" content="video" />
+    <meta property="og:video:type" content="video/mp4" />
     <meta property="og:title" content="<%=video.fileName%>">
     <title><%=video.fileName%></title>
     <%- include('libs') %>
@@ -24,75 +27,3 @@
     
 </body>
 </html>
-<script defer>
-    // ---- Definitions ----- //
-    // https://stackoverflow.com/questions/4129102/html5-video-dimensions
-    /**
-     Returns the dimensions of a video asynchrounsly.
-    @param {String} url Url of the video to get dimensions from.
-    @return {Promise} Promise which returns the dimensions of the video in 'width' and 'height' properties.
-    */
-    function getVideoDimensionsOf(url){
-        return new Promise(function(resolve){
-            // create the video element
-            let video = document.createElement('video');
-
-            // place a listener on it
-            video.addEventListener( "loadedmetadata", function () {
-                // retrieve dimensions
-                let height = this.videoHeight;
-                let width = this.videoWidth;
-                // send back result
-                resolve({
-                    height : height,
-                    width : width
-                });
-            }, false );
-
-            // start download meta-datas
-            video.src = url;
-        });
-    }
-
-
-    // ---- Use ---- //
-    getVideoDimensionsOf("<%= video.url%>")
-    .then(({width, height}) => {
-        document.getElementById("metaWidth").content = width;
-        document.getElementById("metaHeight").content = height;
-        console.log("Video width: " + width) ;
-        console.log("Video height: " + height) ;
-        });
-
-        $(document).ready(function() {
-
-
-        var time = 15;
-        var scale = 1;
-
-        var video_obj = null;
-
-        document.getElementById('video').addEventListener('loadedmetadata', function() {
-            this.currentTime = time;
-            video_obj = this;
-
-        }, false);
-
-        document.getElementById('video').addEventListener('loadeddata', function() {
-            var video = document.getElementById('video');
-
-            var canvas = document.createElement("canvas");
-            canvas.width = video.videoWidth * scale;
-            canvas.height = video.videoHeight * scale;
-            canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
-
-            var img = document.createElement("img");
-            img.src = canvas.toDataURL();
-            $('#thumbnail').append(img);
-
-            video_obj.currentTime = 0;
-
-        }, false);
-
-        });
-</script>
