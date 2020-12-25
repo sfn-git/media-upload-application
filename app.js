@@ -136,16 +136,15 @@ app.post("/upload", ensuredAuthenticated, (req,res)=>{
 
         if(fileExt == ".mp4"){
             try {
-                
                 await User.findByIdAndUpdate(req.user.id, {$push: {videos: {url: URL, fileName, unique, date}}});
             } catch (error) {
-                throw error;
+                console.log(error);
             }
         }else if(fileExt == ".jpg" || fileExt == ".png"){
             try {
                 await User.findByIdAndUpdate(req.user.id, {$push: {photos: {url: URL, fileName, unique, date}}});
             } catch (error) {
-                throw error;
+                console.log(error);
             }
         }else{
             throw new Error("File type doesn't match");
