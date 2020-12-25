@@ -77,6 +77,7 @@ app.get("/create", (req,res)=>{
 
 app.post("/create", (req,res)=>{
 
+    console.log("Test");
     var username = req.body.username.trim().toLowerCase();
     var name = req.body.name.trim();
 
@@ -84,10 +85,13 @@ app.post("/create", (req,res)=>{
         "username": username,
         "password": bcrypt.hashSync(req.body.password, 8),
         "name": name,
-        "rank": "user"
+        "rank": "user",
+        "photos": [],
+        "videos": []
     });
     user.save((err, document)=>{
         if(err){
+            console.log(err);
             res.status(500).send("Fail");
         }else{
             res.status(200).send("Success");
@@ -134,6 +138,8 @@ app.post("/upload", ensuredAuthenticated, (req,res)=>{
         URL = `${SITE_URL}/content/${fileName}`;
         var date = Date.now();
 
+        console.log(fileExt);
+
         if(fileExt == ".mp4"){
             try {
                 await User.findByIdAndUpdate(req.user.id, {$push: {videos: {url: URL, fileName, unique, date}}});
@@ -147,7 +153,7 @@ app.post("/upload", ensuredAuthenticated, (req,res)=>{
                 console.log(error);
             }
         }else{
-            throw new Error("File type doesn't match");
+            console.log("Not the correct file type");
         }
     });
 
