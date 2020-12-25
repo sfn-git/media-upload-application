@@ -3,7 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%=video.unique%></title>
+    <meta property="og:url" content="<%=site%>/<%= video.unique%>">>
+    <meta property="og:video" content="<%= video.url%>" />
+    <meta property="og:video:secure_url" content="<%= video.url%>" />
+    <meta property="og:video:width" content="0" id="metaWidth"/>
+    <meta property="og:video:height" content="0" id="metaHeight"/>
+    <meta property="og:type" content="video" />
+    <meta property="og:title" content="<%=video.fileName%>">
+    <title><%=video.fileName%></title>
     <%- include('libs') %>
 </head>
 <body>
@@ -16,7 +23,6 @@
     </div>
     
 </body>
-<<<<<<< HEAD
 </html>
 <script defer>
     // ---- Definitions ----- //
@@ -90,6 +96,3 @@
 
         });
 </script>
-=======
-</html>
->>>>>>> parent of 18ce7a8... Added video meta tags for easy embeds.
