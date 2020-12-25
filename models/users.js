@@ -10,14 +10,19 @@ var users = new mongoose.Schema({
         name: {type: String},
         date: {type: Date},
         fileName: {type: String},
-        "unique": {type: String, sparse: true}
+        unique: {type: String, sparse: true},
+        height: {type: Number},
+        width: {type: Number}
     }],
     "videos": [{
         url: {type: String},
         name: {type: String},
         date: {type: Date},
         fileName: {type: String},
-        "unique": {type: String, sparse: true}
+        unique: {type: String, sparse: true},
+        height: {type: Number},
+        width: {type: Number},
+        thumbnail: {type: String}
     }],
     "rank": {type: String}
 

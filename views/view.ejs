@@ -6,8 +6,8 @@
     <meta property="og:url" content="<%=site%>/<%= video.unique%>">>
     <meta property="og:video" content="<%= video.url%>" />
     <meta property="og:video:secure_url" content="<%= video.url%>" />
-    <meta property="og:video:width" content="0" id="metaWidth"/>
-    <meta property="og:video:height" content="0" id="metaHeight"/>
+    <meta property="og:video:width" content="<%= video.width%>" id="metaWidth"/>
+    <meta property="og:video:height" content="<%= video.height%>" id="metaHeight"/>
     <meta property="og:type" content="video" />
     <meta property="og:title" content="<%=video.fileName%>">
     <title><%=video.fileName%></title>

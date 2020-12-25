@@ -117,11 +117,16 @@ app.get("/upload", ensuredAuthenticated, (req,res)=>{
 
 });
 
+/* 
+Thank you for the help
+https://medium.com/@sophiesophie/node-js-tutorials-building-a-file-uploader-with-node-js-2808cac30a31
+File Upload Endpoint and Logic
+ */
 var fs = require('fs');
 var path = require('path');
-
-// Thank you for the help
-// https://medium.com/@sophiesophie/node-js-tutorials-building-a-file-uploader-with-node-js-2808cac30a31
+const staticFfprobe = require("ffprobe-static").path;
+var ffmpeg = require('fluent-ffmpeg');
+ffmpeg.setFfprobePath(staticFfprobe);
 
 app.post("/upload", ensuredAuthenticated, (req,res)=>{
     const form = new formidable.IncomingForm();
@@ -133,7 +138,6 @@ app.post("/upload", ensuredAuthenticated, (req,res)=>{
 
     var URL;
     var unique;
-
     var isCorrect = true;
 
     var randomString = require("randomstring");
@@ -148,13 +152,24 @@ app.post("/upload", ensuredAuthenticated, (req,res)=>{
 
         URL = `${SITE_URL}/content/${fileName}`;
         var date = Date.now();
+        var height;
+        var width;
 
         if(fileExt == ".mp4"){
-            try {
-                await User.findByIdAndUpdate(req.user.id, {$push: {videos: {url: URL, fileName, unique, date}}});
-            } catch (error) {
-                console.log(error);
-            }
+            ffmpeg.ffprobe(filePath, async (err, metadata)=>{
+                if(err){
+                    console.log(err);
+                }else{
+                    try {
+                        var height = metadata.streams[0].height;
+                        var width = metadata.streams[0].width;
+                        await User.findByIdAndUpdate(req.user.id, {$push: {videos: {url: URL, fileName, unique, date, height, width}}});
+                    } catch (error) {
+                        console.log(error);
+                    }
+                }
+            });
+            
         }else if(fileExt == ".jpg" || fileExt == ".png"){
             try {
                 await User.findByIdAndUpdate(req.user.id, {$push: {photos: {url: URL, fileName, unique, date}}});
@@ -224,9 +239,10 @@ app.delete("/video", ensuredAuthenticatedAPI, async (req, res)=>{
     if(dbRemove){
         User.updateOne({_id: req.user.id}, {$pull: {videos: {_id: id}}}, (err, document)=>{
             if(err){res.status(500).send("Error");}
-            
             res.status(200).send("Deleted");
         });
+    }else{
+        res.status(200).send("Unable to delete");
     }
 
 });
@@ -237,7 +253,7 @@ app.delete("/photo", ensuredAuthenticatedAPI, async (req, res)=>{
     var user = await User.findById(req.user.id);
     var dbRemove = true;
 
-    var fileName = path.join(path.join(__dirname,"/content"),getFileName(id, user.videos));
+    var fileName = path.join(path.join(__dirname,"/content"),getFileName(id, user.photos));
     if(fs.existsSync(fileName)){
         try{
             fs.unlinkSync(fileName);
@@ -246,10 +262,14 @@ app.delete("/photo", ensuredAuthenticatedAPI, async (req, res)=>{
         }
     }
 
-    User.updateOne({_id: req.user.id}, {$pull: {photos: {_id: id}}}, (err, document)=>{
-        if(err){res.status(500).send("Error");}
-        res.status(200).send("Deleted");
-    });
+    if(dbRemove){
+        User.updateOne({_id: req.user.id}, {$pull: {photos: {_id: id}}}, (err, document)=>{
+            if(err){res.status(500).send("Error");}
+            res.status(200).send("Deleted");
+        });
+    }else{
+        res.status(200).send("Unable to delete");
+    }
 
 });
 

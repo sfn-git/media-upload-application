@@ -16,6 +16,8 @@
     "express": "^4.17.1",
     "express-session": "^1.17.1",
     "express-validator": "^6.9.0",
+    "ffprobe-static": "^3.0.0",
+    "fluent-ffmpeg": "^2.1.2",
     "formidable": "^1.2.2",
     "mongoose": "^5.11.8",
     "multer": "^1.4.2",
