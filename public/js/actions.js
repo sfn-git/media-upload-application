@@ -26,7 +26,7 @@ function deletePhoto(id){
             method: "DELETE",
             data: {id},
             success: (data)=>{
-                window.alert(data.message);
+                window.alert(data);
                 window.location.reload();
             },
             error: (err)=>{
