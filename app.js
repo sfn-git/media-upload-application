@@ -14,7 +14,7 @@ app.use(express.urlencoded({extended: true}));
 // Database
 const User = require("./models/users");
 const MONGO_URI = process.env.MONGO_URI;
-require("mongoose").connect(MONGO_URI,{useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true},(err)=>{
+require("mongoose").connect(MONGO_URI,{useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true, useFindAndModify: false},(err)=>{
     if(err){console.log(err);}else{console.log("Connected to mongo");}
 });
 
@@ -125,8 +125,11 @@ File Upload Endpoint and Logic
 var fs = require('fs');
 var path = require('path');
 const staticFfprobe = require("ffprobe-static").path;
+const staticFfmpeg = require("ffmpeg-static");
 var ffmpeg = require('fluent-ffmpeg');
 ffmpeg.setFfprobePath(staticFfprobe);
+ffmpeg.setFfmpegPath(staticFfmpeg);
+var exec = require('child_process').exec;
 
 app.post("/upload", ensuredAuthenticated, (req,res)=>{
     const form = new formidable.IncomingForm();
@@ -156,6 +159,7 @@ app.post("/upload", ensuredAuthenticated, (req,res)=>{
         var width;
 
         if(fileExt == ".mp4"){
+            // Gets video dimensions
             ffmpeg.ffprobe(filePath, async (err, metadata)=>{
                 if(err){
                     console.log(err);
@@ -163,7 +167,13 @@ app.post("/upload", ensuredAuthenticated, (req,res)=>{
                     try {
                         var height = metadata.streams[0].height;
                         var width = metadata.streams[0].width;
-                        await User.findByIdAndUpdate(req.user.id, {$push: {videos: {url: URL, fileName, unique, date, height, width}}});
+                        // Generates Thumbnail
+                        var thumbFileName = `${unique}_${Date.now()}_thumb.png`;
+                        var thumbFilePath = path.join(form.uploadDir, "thumbnails");
+                        ffmpeg(filePath).thumbnail({count: 1, filename: thumbFileName, folder: thumbFilePath});
+                        var thumbNail = thumbFileName;
+                        var thumbNailURL = `${SITE_URL}/content/thumbnails/${thumbFileName}`;
+                        await User.findByIdAndUpdate(req.user.id, {$push: {videos: {url: URL, fileName, unique, date, height, width, thumbNail, thumbNailURL}}});
                     } catch (error) {
                         console.log(error);
                     }
@@ -221,19 +231,35 @@ app.get("/logout", (req,res)=>{
     res.redirect("/");
 });
 
+// Delete operations
+
+function getFileName(id, contentArray){
+    for(var i in contentArray){
+        if(contentArray[i]._id == id){
+            return {fileName: contentArray[i].fileName || dnf, thumbNail: contentArray[i].thumbNail || "dnf"};
+        }
+    }
+    return "dne";
+}
+
 app.delete("/video", ensuredAuthenticatedAPI, async (req, res)=>{
 
     var id = req.body.id;
     var user = await User.findById(req.user.id);
     var dbRemove = true;
 
-    var fileName = path.join(path.join(__dirname,"/content"),getFileName(id, user.videos));
+    var fileName = path.join(path.join(__dirname,"/content"),getFileName(id, user.videos).fileName);
+    var thumbFileName = path.join(path.join(__dirname,"/content/thumbnails"),getFileName(id, user.videos).thumbNail);
     if(fs.existsSync(fileName)){
         try{
             fs.unlinkSync(fileName);
         }catch(e){
             dbRemove = false;
         }
+    }
+
+    if(fs.existsSync(thumbFileName)){
+        fs.unlinkSync(thumbFileName);
     }
 
     if(dbRemove){
@@ -309,12 +335,3 @@ app.get("/view/:unique", async (req,res)=>{
 });
 
 app.listen(port, ()=>{console.log(`http://localhost:${port}`);});
-
-function getFileName(id, contentArray){
-    for(var i in contentArray){
-        if(contentArray[i]._id == id){
-            return contentArray[i].fileName;
-        }
-    }
-    return "dne";
-}

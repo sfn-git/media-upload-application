@@ -22,7 +22,8 @@ var users = new mongoose.Schema({
         unique: {type: String, sparse: true},
         height: {type: Number},
         width: {type: Number},
-        thumbnail: {type: String}
+        thumbNail: {type: String},
+        thumbNailURL: {type: String}
     }],
     "rank": {type: String}
 
