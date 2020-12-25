@@ -77,7 +77,6 @@ app.get("/create", (req,res)=>{
 
 app.post("/create", (req,res)=>{
 
-    console.log("Test");
     var username = req.body.username.trim().toLowerCase();
     var name = req.body.name.trim();
 
@@ -119,26 +118,28 @@ var path = require('path');
 app.post("/upload", ensuredAuthenticated, (req,res)=>{
     const form = new formidable.IncomingForm();
 
+    console.log("test");
+
+    form.parse(req);
     form.maxFileSize = 2000*1024*1024;
     form.multiples = false;
     form.uploadDir = path.join(__dirname, '/content');
 
     var URL;
+    var unique;
 
     var randomString = require("randomstring");
 
     form.on('file', async (field, file)=>{
         form.uploadDir = path.join(__dirname, '/content');
         var fileExt = path.extname(file.name);
-        var unique = randomString.generate(8);
+        unique = randomString.generate(8);
         var fileName = `${unique}_${Date.now()}${fileExt}`;
         var filePath = path.join(form.uploadDir, fileName);
         fs.renameSync(file.path, filePath);
 
         URL = `${SITE_URL}/content/${fileName}`;
         var date = Date.now();
-
-        console.log(fileExt);
 
         if(fileExt == ".mp4"){
             try {

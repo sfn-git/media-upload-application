@@ -27,7 +27,7 @@ function uploadFile(){
         },
         xhr: ()=>{
             var xhr = new XMLHttpRequest();
-
+            
             xhr.upload.addEventListener('progress', (evt)=>{
                 var percentCompleted = evt.loaded / evt.total;
                 percentCompleted = parseInt(percentCompleted * 100);
