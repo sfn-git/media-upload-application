@@ -172,7 +172,17 @@ app.post("/upload", ensuredAuthenticated, (req,res)=>{
 app.get("/me", ensuredAuthenticated, async (req,res)=>{
 
     var user = await User.findById(req.user.id);
-    res.render("me", {user, videos: user.videos, photos: user.photos});
+
+    var photos = user.photos;
+    var videos = user.videos;
+
+    videos.sort((a, b)=>{
+        return new Date(b.date) - new Date(a.date);
+    });
+    photos.sort((a, b)=>{
+        return new Date(b.date) - new Date(a.date);
+    });
+    res.render("me", {user, videos: user.videos, photos});
 
 });
 
