@@ -5,6 +5,7 @@ const port = process.env.PORT || 3000;
 const bcrypt = require("bcrypt");
 const formidable = require('formidable');
 const SITE_URL = process.env.SITE_URL;
+const {body} = require('express-validator');
 
 app.set("view engine", "ejs");
 app.use(express.static('public'));
@@ -67,7 +68,10 @@ app.get("/", (req,res)=>{
 
 });
 
-app.post("/login", passport.authenticate('local', {failureRedirect: "/"}),(req,res)=>{
+app.post("/login", 
+    body('username').not().isEmpty().trim().escape().toLowerCase(),
+    body('password').not().isEmpty().trim().escape(), 
+    passport.authenticate('local', {failureRedirect: "/"}),(req,res)=>{
     res.redirect("/me");
 });
 
@@ -75,10 +79,14 @@ app.get("/create", (req,res)=>{
     res.render("create");
 });
 
-app.post("/create", (req,res)=>{
+app.post("/create", 
+    body('username').not().isEmpty().trim().escape().toLowerCase(),
+    body('password').not().isEmpty().trim().escape(),
+    body('name').trim().escape(),
+(req,res)=>{
 
-    var username = req.body.username.trim().toLowerCase();
-    var name = req.body.name.trim();
+    var username = req.body.username;
+    var name = req.body.name;
 
     var user = new User({
         "username": username,
@@ -93,7 +101,7 @@ app.post("/create", (req,res)=>{
             console.log(err);
             res.status(500).send("Fail");
         }else{
-            res.status(200).send("Success");
+            res.status(200).send({status: true, message: "Success"});
         }
         
     });
@@ -126,6 +134,8 @@ app.post("/upload", ensuredAuthenticated, (req,res)=>{
     var URL;
     var unique;
 
+    var isCorrect = true;
+
     var randomString = require("randomstring");
 
     form.on('file', async (field, file)=>{
@@ -153,6 +163,8 @@ app.post("/upload", ensuredAuthenticated, (req,res)=>{
             }
         }else{
             console.log("Not the correct file type");
+            fs.unlinkSync(filePath);
+            isCorrect = false;
         }
     });
 
@@ -162,7 +174,12 @@ app.post("/upload", ensuredAuthenticated, (req,res)=>{
     });
 
     form.on('end', ()=>{
-        res.send({success: true, URL: `${SITE_URL}/view/${unique}`});
+        if(isCorrect){
+            res.send({success: true, URL: `${SITE_URL}/view/${unique}`});
+        }else{
+            res.send({success: false, message: "Failed to upload file. Please upload .mp4, .jpg, or .png only."});
+        }
+        
     });
 
 });
