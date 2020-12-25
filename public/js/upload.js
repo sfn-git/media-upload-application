@@ -2,7 +2,7 @@ var progressBar = document.getElementById("progress");
 var fileInput = document.getElementById("fileInput");
 
 function uploadFile(){
-    console.log("Upload File!");
+    document.getElementById("upload-button").style.display = "none";
     progressBar.style.display = "block";
     progressBar.value = 0;
 
@@ -18,12 +18,18 @@ function uploadFile(){
         processData: false,
         contentType: false,
         success: (data)=>{
-            var url = data.URL;
-            document.getElementById("upload-form").style.display = "none";
-            document.getElementById("message").style.display = "block";
-            document.getElementById("alert-text").innerHTML = `Your video is now available!`;
-            document.getElementById("copy-link").value = url;
-            document.getElementById("url-link").href = url;
+            if(data.success){
+                var url = data.URL;
+                document.getElementById("upload-form").style.display = "none";
+                document.getElementById("message").style.display = "block";
+                document.getElementById("alert-text").innerHTML = `Your content is now available!`;
+                document.getElementById("copy-link").value = url;
+                document.getElementById("url-link").href = url;
+            }else{
+                window.alert(data.message);
+                window.location.reload();
+            }
+
         },
         xhr: ()=>{
             var xhr = new XMLHttpRequest();
