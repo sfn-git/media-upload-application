@@ -159,27 +159,11 @@ app.post("/upload", ensuredAuthenticated, (req,res)=>{
         var width;
 
         if(fileExt == ".mp4"){
-            // Gets video dimensions
-            ffmpeg.ffprobe(filePath, async (err, metadata)=>{
-                if(err){
-                    console.log(err);
-                }else{
-                    try {
-                        var height = metadata.streams[0].height;
-                        var width = metadata.streams[0].width;
-                        // // Generates Thumbnail
-                        // var thumbFileName = `${unique}_${Date.now()}_thumb.png`;
-                        // var thumbFilePath = path.join(form.uploadDir, "thumbnails");
-                        // ffmpeg(filePath).thumbnail({count: 1, filename: thumbFileName, folder: thumbFilePath});
-                        // var thumbNail = thumbFileName;
-                        // var thumbNailURL = `${SITE_URL}/content/thumbnails/${thumbFileName}`;
-                        await User.findByIdAndUpdate(req.user.id, {$push: {videos: {url: URL, fileName, unique, date, height, width}}});
-                    } catch (error) {
-                        console.log(error);
-                    }
-                }
-            });
-            
+            try {
+                await User.findByIdAndUpdate(req.user.id, {$push: {videos: {url: URL, fileName, unique, date}}});
+            } catch (error) {
+                console.log(error);
+            }
         }else if(fileExt == ".jpg" || fileExt == ".png"){
             try {
                 await User.findByIdAndUpdate(req.user.id, {$push: {photos: {url: URL, fileName, unique, date}}});
