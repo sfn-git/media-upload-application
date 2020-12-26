@@ -10,51 +10,70 @@
 <body>
     <%- include('nav') %>
     <div class="container">
-        <h1>Your Videos</h1>
+        <h1 id="videos">Your Videos</h1>
         <div class="table-responsive">
             <!-- Videos -->
             <table class="table table-sm">
                 <thead>
                     <tr>
                         <th scope="col">Name</th>
-                        <th scope="col">File</th>
-                        <th scope="col"></th>
-                        <th scope="col"></th>
-                        <th scope="col"></th>
+                        <th scope="col">Upload Date</th>
+                        <th scope="col">Direct File</th>
+                        <th scope="col">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     <% for(var i in videos){ %>
                         <tr>
-                            <td><%= videos[i].name %> </td>
-                            <td><a href="<%=videos[i].url%>" target="_blank"><%= videos[i].fileName%></a></td>
-                            <td><button type="button" class="btn btn-warning">Edit</button></td>
-                            <td><a type="button" class="btn btn-primary" href="/view/<%=videos[i].unique%>" target="_blank">View</a></td>
-                            <td><button type="button" class="btn btn-danger" onclick="deleteVideo('<%=videos[i].id%>')">Delete</button></td>
+                            
+                            <td>
+                                <input type="text" value="<%= videos[i].name %>" id="input_<%=videos[i].unique%>" style="display: none;">
+                                <span id="name_<%=videos[i].unique%>" style="font-weight: bold;"><%= videos[i].name %></span> 
+                            </td>
+                            <td><%=`${videos[i].date.getMonth() + 1}/${videos[i].date.getDate()}/${videos[i].date.getFullYear()}`%></td>
+                            <td><a href="<%=videos[i].url%>" target="_blank" ><%= videos[i].fileName%></a></td>
+                            <td>
+                                <button type="button" class="btn btn-warning" onclick="editName('<%=videos[i].unique%>')" id="edit_<%=videos[i].unique%>">Edit</button>
+                                <span id="action_group_<%=videos[i].unique%>" style="display: none;">
+                                    <button type="button" class="btn btn-success" onclick="saveName('<%=videos[i].unique%>')">Save</button>
+                                    <button type="button" class="btn btn-secondary" onclick="cancelEditName('<%=videos[i].unique%>')">Cancel</button>
+                                </span>
+                                <a type="button" class="btn btn-primary" href="/view/<%=videos[i].unique%>" target="_blank">View</a>
+                                <button type="button" class="btn btn-danger" onclick="deleteVideo('<%=videos[i].id%>')">Delete</button>
+                            </td>
                         </tr>
                     <%}%>
                 <tbody>
             </table>
-            <h1 id="videos">Your Photos</h1>
+            <h1 id="photos">Your Photos</h1>
             <!-- Photos -->
-            <table class="table">
+            <table class="table table-sm">
                 <thead>
                     <tr>
-                        <th scope="col">Date</th>
-                        <th scope="col">File Name</th>
-                        <th scope="col"></th>
-                        <th scope="col">View</th>
-                        <th scope="col">Delete</th>
+                        <th scope="col">Name</th>
+                        <th scope="col">Upload Date</th>
+                        <th scope="col">Direct File</th>
+                        <th scope="col">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     <% for(var i in photos){ %>
                         <tr>
-                            <td><%= photos[i].date%></td>
-                            <td><%= photos[i].fileName%></td>
-                            <td></td>
-                            <td><a type="button" class="btn btn-primary" href="<%=photos[i].url%>" target="_blank">View</a></td>
-                            <td><button type="button" class="btn btn-danger" onclick="deletePhoto('<%=photos[i].id%>')">Delete</button></td>
+                            
+                            <td>
+                                <input type="text" value="<%= photos[i].name %>" id="input_<%=photos[i].unique%>" style="display: none;">
+                                <span id="name_<%=photos[i].unique%>" style="font-weight: bold;"><%= photos[i].name %></span> 
+                            </td>
+                            <td><%=`${photos[i].date.getMonth() + 1}/${photos[i].date.getDate()}/${photos[i].date.getFullYear()}`%></td>
+                            <td><a href="<%=photos[i].url%>" target="_blank" ><%= photos[i].fileName%></a></td>
+                            <td>
+                                <button type="button" class="btn btn-warning" onclick="editName('<%=photos[i].unique%>')" id="edit_<%=photos[i].unique%>">Edit</button>
+                                <span id="action_group_<%=photos[i].unique%>" style="display: none;">
+                                    <button type="button" class="btn btn-success" onclick="saveName('<%=photos[i].unique%>')">Save</button>
+                                    <button type="button" class="btn btn-secondary" onclick="cancelEditName('<%=photos[i].unique%>')">Cancel</button>
+                                </span>
+                                <button type="button" class="btn btn-danger" onclick="deleteVideo('<%=photos[i].id%>')">Delete</button>
+                            </td>
                         </tr>
                     <%}%>
                 <tbody>

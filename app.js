@@ -287,6 +287,7 @@ app.delete("/photo", ensuredAuthenticatedAPI, async (req, res)=>{
 
 });
 
+// Viewing video on webpage
 app.get("/view/:unique", async (req,res)=>{
 
     var unique = req.params.unique;
@@ -320,6 +321,56 @@ app.get("/view/:unique", async (req,res)=>{
         res.render("404");
     }
 
+});
+
+// Editing Name
+app.patch("/edit", 
+    body('name').trim().escape(),
+    body('unique').trim().escape(),
+    ensuredAuthenticatedAPI, async (req,res)=>{
+
+        try {
+            var name = req.body.name;
+            var unique = req.body.unique;
+            var user = await User.findById(req.user.id);
+
+            var videos = user.videos;
+            var photos = user.photos;
+
+            var contentIndex;
+            var contentType;
+
+            for(var i in videos){
+                if(videos[i].unique == unique){
+                    contentIndex = i;
+                    contentType = "video";
+                }
+            }
+
+            for(var i in photos){
+                if(photos[i].unique == unique){
+                    contentIndex = i;
+                    contentType = "photo";
+                }
+            }
+
+            if(contentType){
+                if(contentType == "video"){
+                    user.videos[contentIndex].name = name;
+                    await user.save();
+                }else{
+                    user.photos[contentIndex].name = name;
+                    await user.save();
+                }
+                res.send({status: true, message: "Name updated"});
+            }else{
+                res.send({status: false, message: "Could not find content."});
+            }
+
+        } catch (error) {
+            console.log(err);
+            res.status(501);
+        }
 });
 
 app.listen(port, ()=>{console.log(`http://localhost:${port}`);});
