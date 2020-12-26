@@ -64,7 +64,11 @@ app.use(passport.session());
 // Routes
 app.get("/", (req,res)=>{
 
-    res.render("login");
+    if(req.isAuthenticated()){
+        res.redirect("/me");
+    }else{
+        res.render("login");
+    }
 
 });
 
