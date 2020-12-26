@@ -1,11 +1,14 @@
 var progressBar = document.getElementById("progress");
 var fileInput = document.getElementById("fileInput");
+var nameInput = document.getElementById("upload_name");
 
 function uploadFile(){
     document.getElementById("upload-button").style.display = "none";
+    nameInput.readonly = true;
     progressBar.style.display = "block";
     progressBar.value = 0;
 
+    var name = nameInput.value;
     var file = fileInput.files[0];
     var formData = new FormData();
 
@@ -25,6 +28,23 @@ function uploadFile(){
                 document.getElementById("alert-text").innerHTML = `Your content is now available!`;
                 document.getElementById("copy-link").value = url;
                 document.getElementById("url-link").href = url;
+
+                if(name != ""){
+                    $.ajax({
+                        url: "/edit",
+                        method: "PATCH",
+                        data: {name, unique: data.unique},
+                        success: (res)=>{
+                            if(!res.status){
+                                window.alert(res.message);
+                            }
+                        },
+                        error: (err)=>{
+                            window.alert("Could not add a name to your video. Try to edit the name in your uploads.");
+                        }
+                    });
+                }
+
             }else{
                 window.alert(data.message);
                 window.location.reload();

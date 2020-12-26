@@ -188,7 +188,7 @@ app.post("/upload", ensuredAuthenticated, (req,res)=>{
 
     form.on('end', ()=>{
         if(isCorrect){
-            res.send({success: true, URL: `${SITE_URL}/view/${unique}`});
+            res.send({success: true, URL: `${SITE_URL}/view/${unique}`, unique});
         }else{
             res.send({success: false, message: "Failed to upload file. Please upload .mp4, .jpg, or .png only."});
         }

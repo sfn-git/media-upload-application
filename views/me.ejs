@@ -27,8 +27,8 @@
                         <tr>
                             
                             <td>
-                                <input type="text" value="<%= videos[i].name %>" id="input_<%=videos[i].unique%>" style="display: none;">
-                                <span id="name_<%=videos[i].unique%>" style="font-weight: bold;"><%= videos[i].name %></span> 
+                                <input type="text" value="<%- unescape(`${videos[i].name}`) %>" id="input_<%=videos[i].unique%>" style="display: none;">
+                                <span id="name_<%=videos[i].unique%>" style="font-weight: bold;"><%- unescape(`${videos[i].name}`) %></span> 
                             </td>
                             <td><%=`${videos[i].date.getMonth() + 1}/${videos[i].date.getDate()}/${videos[i].date.getFullYear()}`%></td>
                             <td><a href="<%=videos[i].url%>" target="_blank" ><%= videos[i].fileName%></a></td>
