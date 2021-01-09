@@ -308,7 +308,7 @@ app.get("/view/:unique", async (req,res)=>{
             }
 
             if(content.type === "video"){
-                res.render("view", {video: content, user: user.name, site: SITE_URL});
+                res.render("view", {video: content, user: user[0].name, site: SITE_URL});
             }else{
                 res.render("404");
             }
