@@ -5,12 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Your Uploads</title>
     <%- include('libs') %>
-    <script src="/js/actions.js"></script>
+    <% if(!(typeof admin === "undefined")){%>
+        <script src="/js/adminActions.js"></script>
+        <input type="hidden" id="userID" value="<%= user._id%>">
+    <%}else{%>
+        <script src="/js/actions.js"></script>
+    <%}%>
+    
 </head>
 <body>
     <%- include('nav') %>
     <div class="container">
-        <h1 id="videos">Your Videos</h1>
+        <% if(!(typeof admin === "undefined")){%>
+            <h1><%= user.name%>'s Profile</h1>
+            <h1 id="videos">Videos</h1>
+        <%}else{%>
+            <h1 id="videos">Your Videos</h1>
+        <%}%>
         <div class="table-responsive">
             <!-- Videos -->
             <table class="table table-sm">
@@ -45,7 +56,11 @@
                     <%}%>
                 <tbody>
             </table>
-            <h1 id="photos">Your Photos</h1>
+            <% if(!(typeof admin === "undefined")){%>
+                <h1 id="photos">Photos</h1>
+            <%}else{%>
+                <h1 id="photos">Your Photos</h1>
+            <%}%>
             <!-- Photos -->
             <table class="table table-sm">
                 <thead>
@@ -72,7 +87,7 @@
                                     <button type="button" class="btn btn-success" onclick="saveName('<%=photos[i].unique%>')">Save</button>
                                     <button type="button" class="btn btn-secondary" onclick="cancelEditName('<%=photos[i].unique%>')">Cancel</button>
                                 </span>
-                                <button type="button" class="btn btn-danger" onclick="deleteVideo('<%=photos[i].id%>')">Delete</button>
+                                <button type="button" class="btn btn-danger" onclick="deletePhoto('<%=photos[i].id%>')">Delete</button>
                             </td>
                         </tr>
                     <%}%>

@@ -80,7 +80,16 @@ app.post("/login",
 });
 
 app.get("/create", (req,res)=>{
-    res.render("create");
+    if(req.user){
+        if(req.user.rank === "Admin"){
+            res.render('create');
+        }else{
+            res.render("404");
+        }
+    }else{
+        res.render("404");
+    }
+    
 });
 
 app.post("/create", 
@@ -98,7 +107,8 @@ app.post("/create",
         "name": name,
         "rank": "user",
         "photos": [],
-        "videos": []
+        "videos": [],
+        "accountCreated": Date.now()
     });
     user.save((err, document)=>{
         if(err){
@@ -134,6 +144,7 @@ var ffmpeg = require('fluent-ffmpeg');
 ffmpeg.setFfprobePath(staticFfprobe);
 ffmpeg.setFfmpegPath(staticFfmpeg);
 var exec = require('child_process').exec;
+const users = require('./models/users');
 
 app.post("/upload", ensuredAuthenticated, (req,res)=>{
     const form = new formidable.IncomingForm();
@@ -214,17 +225,58 @@ app.get("/me", ensuredAuthenticated, async (req,res)=>{
 
 });
 
+app.get("/profile/:id", ensuredAuthenticated, async (req,res)=>{
+
+    if(req.user.rank === "Admin"){
+        var id = req.params.id;
+        var user = await User.findById(id);
+
+        var photos = user.photos;
+        var videos = user.videos;
+
+        videos.sort((a, b)=>{
+            return new Date(b.date) - new Date(a.date);
+        });
+        photos.sort((a, b)=>{
+            return new Date(b.date) - new Date(a.date);
+        });
+        res.render("me", {user, videos: user.videos, photos, admin: true});
+    }else{
+        res.render("404");
+    }
+
+});
+
+app.get("/admin", ensuredAuthenticated, async (req, res)=>{
+
+    if(req.user.rank === "Admin"){
+        res.render("admin", {user: req.user});
+    }else{
+        res.render("404");
+    }
+
+});
+
+app.get("/lookup", ensuredAuthenticated, async (req, res)=>{
+
+    if(req.user.rank === "Admin"){
+        var users = await User.find().sort({ _id: -1 }).limit(10);
+        res.render("lookup", {user: req.user, users});
+    }else{
+        res.render("404");
+    }
+});
+
 app.get("/logout", (req,res)=>{
     req.logOut();
     res.redirect("/");
 });
 
 // Delete operations
-
 function getFileName(id, contentArray){
     for(var i in contentArray){
         if(contentArray[i]._id == id){
-            return {fileName: contentArray[i].fileName || dnf, thumbNail: contentArray[i].thumbNail || "dnf"};
+            return {fileName: contentArray[i].fileName || "dnf", thumbNail: contentArray[i].thumbNail || "dnf"};
         }
     }
     return "dne";
@@ -233,7 +285,15 @@ function getFileName(id, contentArray){
 app.delete("/video", ensuredAuthenticatedAPI, async (req, res)=>{
 
     var id = req.body.id;
-    var user = await User.findById(req.user.id);
+    var userID;
+    if(req.body.isAdmin === "true"){
+        if(req.user.rank === "Admin"){
+            userID = req.body.userID;
+        }
+    }else{
+        userID = req.user.id;
+    }
+    var user = await User.findById(userID);
     var dbRemove = true;
 
     var fileName = path.join(path.join(__dirname,"/content"),getFileName(id, user.videos).fileName);
@@ -251,7 +311,7 @@ app.delete("/video", ensuredAuthenticatedAPI, async (req, res)=>{
     }
 
     if(dbRemove){
-        User.updateOne({_id: req.user.id}, {$pull: {videos: {_id: id}}}, (err, document)=>{
+        User.updateOne({_id: userID}, {$pull: {videos: {_id: id}}}, (err, document)=>{
             if(err){res.status(500).send("Error");}
             res.status(200).send("Deleted");
         });
@@ -262,12 +322,18 @@ app.delete("/video", ensuredAuthenticatedAPI, async (req, res)=>{
 });
 
 app.delete("/photo", ensuredAuthenticatedAPI, async (req, res)=>{
-
     var id = req.body.id;
-    var user = await User.findById(req.user.id);
+    var userID;
+    if(req.body.isAdmin === "true"){
+        if(req.user.rank === "Admin"){
+            userID = req.body.userID;
+        }
+    }else{
+        userID = req.user.id;
+    }
+    var user = await User.findById(userID);
     var dbRemove = true;
-
-    var fileName = path.join(path.join(__dirname,"/content"),getFileName(id, user.photos));
+    var fileName = path.join(path.join(__dirname,"/content"),getFileName(id, user.photos).fileName);
     if(fs.existsSync(fileName)){
         try{
             fs.unlinkSync(fileName);
@@ -277,7 +343,7 @@ app.delete("/photo", ensuredAuthenticatedAPI, async (req, res)=>{
     }
 
     if(dbRemove){
-        User.updateOne({_id: req.user.id}, {$pull: {photos: {_id: id}}}, (err, document)=>{
+        User.updateOne({_id: userID}, {$pull: {photos: {_id: id}}}, (err, document)=>{
             if(err){res.status(500).send("Error");}
             res.status(200).send("Deleted");
         });
@@ -368,7 +434,7 @@ app.patch("/edit",
             }
 
         } catch (error) {
-            console.log(err);
+            console.log(error);
             res.status(501);
         }
 });

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Lookup</title>
+    <%- include('libs') %>
+    <script src="/js/adminActions.js"></script>
+</head>
+<body>
+    <%- include('nav') %>
+    <div>
+        <h1 class="text-center fs-1">User Lookup</h1>
+    </div>
+    <div class="container">
+        <div class="mb-3">
+            <input type="text" class="form-control" id="search" placeholder="Enter a username or id...">
+        </div>
+        <h2>Recently Created Users</h2>
+        <table class="table">
+            <thead>
+                <th>id</th>
+                <th>Username</th>
+                <th>Name</th>
+                <th>Account Created</th>
+                <th>Actions</th>
+            </thead>
+            <tbody>
+                <%for(var i in users){%>
+                    <tr>
+                        <td><%= users[i]._id %></td>
+                        <td><%= users[i].username %></td>
+                        <td><%= users[i].name %></td>
+                        <td><%= users[i].accountCreated %></td>
+                        <td>
+                            <a href="/profile/<%=users[i]._id%>" class="btn btn-primary">View</a>
+                            <button type="button" class="btn btn-danger">Delete User</button>
+                        </td>
+                    </tr>
+                <%}%>
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

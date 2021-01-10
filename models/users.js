@@ -25,7 +25,8 @@ var users = new mongoose.Schema({
         thumbNail: {type: String},
         thumbNailURL: {type: String}
     }],
-    "rank": {type: String}
+    "rank": {type: String},
+    "accountCreated": {type: Date, required: true}
 
 });
 
