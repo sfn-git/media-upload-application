@@ -150,7 +150,7 @@ app.post("/upload", ensuredAuthenticated, (req,res)=>{
     const form = new formidable.IncomingForm();
 
     form.parse(req);
-    form.maxFileSize = 2000*1024*1024;
+    form.maxFileSize = parseInt(process.env.MAX_FILE_SIZE);
     form.multiples = false;
     form.uploadDir = path.join(__dirname, '/content');
 
