@@ -34,7 +34,7 @@
                         <td><%= users[i].accountCreated %></td>
                         <td>
                             <a href="/profile/<%=users[i]._id%>" class="btn btn-primary">View</a>
-                            <button type="button" class="btn btn-danger">Delete User</button>
+                            <button type="button" class="btn btn-danger" onclick="deleteUser('<%=users[i]._id%>')">Delete User</button>
                         </td>
                     </tr>
                 <%}%>

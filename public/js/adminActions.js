@@ -39,5 +39,21 @@ function deletePhoto(id){
             }
         });
     }
+}
 
+function deleteUser(id){
+    if(window.confirm("Are you sure you would like to delete this user?")){
+        $.ajax({
+            url: `/user/${id}`,
+            method: "DELETE",
+            success: (data)=>{
+                window.alert(data);
+                window.location.reload();
+            },
+            error: (err)=>{
+                window.alert("Could not delete user");
+                window.location.reload();
+            }
+        });
+    }
 }

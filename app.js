@@ -273,6 +273,7 @@ app.get("/logout", (req,res)=>{
 });
 
 // Delete operations
+// ----------------------------------Helper Functions---------------------------------------------------------
 function getFileName(id, contentArray){
     for(var i in contentArray){
         if(contentArray[i]._id == id){
@@ -282,6 +283,25 @@ function getFileName(id, contentArray){
     return "dne";
 }
 
+function deleteFile(fileName){
+    var filePath = path.join(path.join(__dirname,"/content"),fileName);
+    if(fs.existsSync(filePath)){
+        try{
+            // File was removed
+            fs.unlinkSync(filePath);
+            return true;
+        }catch(e){
+            // Error while deleting file
+            return false;
+        }
+    }else{
+        // File is already deleted
+        return true;
+    }
+}
+// ----------------------------------------------------------------------------------------------------
+
+// -----------------------------------End-Points-------------------------------------------------------
 app.delete("/video", ensuredAuthenticatedAPI, async (req, res)=>{
 
     var id = req.body.id;
@@ -294,21 +314,9 @@ app.delete("/video", ensuredAuthenticatedAPI, async (req, res)=>{
         userID = req.user.id;
     }
     var user = await User.findById(userID);
-    var dbRemove = true;
 
-    var fileName = path.join(path.join(__dirname,"/content"),getFileName(id, user.videos).fileName);
-    var thumbFileName = path.join(path.join(__dirname,"/content/thumbnails"),getFileName(id, user.videos).thumbNail);
-    if(fs.existsSync(fileName)){
-        try{
-            fs.unlinkSync(fileName);
-        }catch(e){
-            dbRemove = false;
-        }
-    }
-
-    if(fs.existsSync(thumbFileName)){
-        fs.unlinkSync(thumbFileName);
-    }
+    var fileName = getFileName(id, user.videos).fileName;
+    var dbRemove = deleteFile(fileName);
 
     if(dbRemove){
         User.updateOne({_id: userID}, {$pull: {videos: {_id: id}}}, (err, document)=>{
@@ -321,6 +329,7 @@ app.delete("/video", ensuredAuthenticatedAPI, async (req, res)=>{
 
 });
 
+
 app.delete("/photo", ensuredAuthenticatedAPI, async (req, res)=>{
     var id = req.body.id;
     var userID;
@@ -332,15 +341,9 @@ app.delete("/photo", ensuredAuthenticatedAPI, async (req, res)=>{
         userID = req.user.id;
     }
     var user = await User.findById(userID);
-    var dbRemove = true;
-    var fileName = path.join(path.join(__dirname,"/content"),getFileName(id, user.photos).fileName);
-    if(fs.existsSync(fileName)){
-        try{
-            fs.unlinkSync(fileName);
-        }catch(e){
-            dbRemove = false;
-        }
-    }
+    
+    var fileName = getFileName(id, user.photos).fileName;
+    var dbRemove = deleteFile(fileName);
 
     if(dbRemove){
         User.updateOne({_id: userID}, {$pull: {photos: {_id: id}}}, (err, document)=>{
@@ -353,6 +356,39 @@ app.delete("/photo", ensuredAuthenticatedAPI, async (req, res)=>{
 
 });
 
+// Deletes user from db and removes all of their videos
+app.delete("/user/:id", ensuredAuthenticatedAPI, async (req,res)=>{
+
+    var id = req.params.id;
+
+    if(req.user.rank == "Admin"){
+        try{
+            var user = await User.findById(id);
+            var videos = user.videos;
+            var photos = user.photos;
+
+            for(var i in videos){
+                deleteFile(videos[i].fileName);
+            }
+
+            for(var j in photos){
+                deleteFile(photos[i].fileName);
+            }
+
+            await User.findByIdAndDelete(id);
+
+            res.send("Deleted");
+        }catch(e){
+            console.log(e);
+            res.status(500);
+        }
+    }else{
+        res.status(401).send("Unauthorized");
+    }
+
+});
+
+// ----------------------------------------------------------------------------------------------------
 // Viewing video on webpage
 app.get("/view/:unique", async (req,res)=>{
 
