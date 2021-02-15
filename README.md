@@ -1,6 +1,6 @@
 # media-upload-application
 
-A NodeJS application that allows users to upload pictures of videos to then be served by another static webserver such as nginx or apache. 
+A NodeJS application that allows users to upload pictures and videos to then be served by another static webserver such as nginx or apache. 
 UI uses bootstrap, file upload uses ajax and formidable.
 Still a wip. 
 
