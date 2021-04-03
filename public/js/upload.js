@@ -4,6 +4,7 @@ var nameInput = document.getElementById("upload_name");
 
 function uploadFile(){
     document.getElementById("upload-button").style.display = "none";
+    document.getElementById("upload_name").setAttribute("disabled", "true");
     nameInput.readonly = true;
     progressBar.style.display = "block";
     progressBar.value = 0;
@@ -53,7 +54,7 @@ function uploadFile(){
         },
         xhr: ()=>{
             var xhr = new XMLHttpRequest();
-            
+
             xhr.upload.addEventListener('progress', (evt)=>{
                 var percentCompleted = evt.loaded / evt.total;
                 percentCompleted = parseInt(percentCompleted * 100);
