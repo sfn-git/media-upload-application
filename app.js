@@ -131,6 +131,12 @@ app.get("/upload", ensuredAuthenticated, (req,res)=>{
 
 });
 
+app.get("/settings", ensuredAuthenticated, (req,res)=>{
+
+    res.render("settings", {user: req.user});
+
+});
+
 /* 
 Thank you for the help
 https://medium.com/@sophiesophie/node-js-tutorials-building-a-file-uploader-with-node-js-2808cac30a31
@@ -473,6 +479,39 @@ app.patch("/edit",
             console.log(error);
             res.status(501);
         }
+});
+
+// Changing password
+app.patch("/changepassword",
+body('currentPassword').isEmpty().trim().escape(),
+body('newPassword').not().isEmpty().trim().escape(),
+body('confirmNewPassword').not().isEmpty().trim().escape(),
+ensuredAuthenticatedAPI,
+async (req, res)=>{
+    
+    const passwords = req.body;
+    if(passwords.currentPassword == "" || passwords.newPassword == "" || passwords.confirmNewPassword == ""){
+        res.send({status: false, message: "Please fill all boxes."});
+    }else if(passwords.newPassword != passwords.confirmNewPassword){
+        res.send({status: false, message: "Passwords do not match."});
+    }else if(!bcrypt.compareSync(passwords.currentPassword, req.user.password)){
+        res.send({status: false, message: "Current password incorrect"});
+    }else if(passwords.currentPassword == passwords.newPassword){
+        res.send({status: false, message: "New password cannot be the same as your old password."});
+    }else{
+        const thisUser = await users.findById(req.user._id);
+        thisUser.password = bcrypt.hashSync(passwords.newPassword, 8);
+        thisUser.save((err)=>{
+            if(err){
+                console.log(err);
+                res.send({status: false, message: "Something went wrong changing your password. Please try again later."});
+            }else{
+                req.logout();
+                res.send({status: true, message: "Password successfully changed!"});
+            }
+        });
+    }
+
 });
 
 app.listen(port, ()=>{console.log(`http://localhost:${port}`);});

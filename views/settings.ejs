@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings</title>
+    <script src="/js/settings.js"></script>
+    <%- include('libs') %>
+</head>
+<body>
+    <%- include('nav') %>
+    <div class="container">
+        <h1 class="text-center">Your Settings</h1>
+        <div class="row">
+            <div class="col-6 form-group mx-auto">
+                <label for="username">Username:</label>
+                <input type="text" class="form-control" placeholder="Username" aria-label="Username" aria-describedby="basic-addon1" value='<%=user.username%>' disabled>
+            </div>
+        </div>
+        <div class="row mt-3">
+            <h3 class="text-center">Change Password</h3>
+            <div class="col-6 form-group mx-auto">
+                <div class="mt-2">
+                    <label for="password">Current-Password:</label>
+                    <input type="password" class="form-control" placeholder="Current Password" aria-label="current-password" aria-describedby="basic-addon1" name="password" id="password" required>
+                </div>
+                <div class="mt-2">
+                    <label for="new-password">New Password:</label>
+                    <input type="password" class="form-control" placeholder="New Password" aria-label="new-password" aria-describedby="basic-addon1" name="new-password" id="new-password" required>    
+                </div>
+                <div class="mt-2">
+                    <label for="confirm-new-password">Confirm New Password:</label>
+                    <input type="password" class="form-control" placeholder="New Password" aria-label="confirm-new-passwor" aria-describedby="basic-addon1" name="confirm-new-password" id="confirm-new-password" required>    
+                </div>
+                <button type="submit" class="btn btn-primary mt-2" onclick="changePassword()">Change Password</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
