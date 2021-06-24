@@ -127,3 +127,4 @@ content/
 # Local History for Visual Studio Code
 .history/
 .vscode/settings.json
+media-share*.json
