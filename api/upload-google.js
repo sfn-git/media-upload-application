@@ -13,6 +13,7 @@ async function uploadFile(fileName){
     await bucket.upload(`content/${fileName}`, options);
     const file = bucket.file(fileName);
     await file.makePublic();
+    console.log(file.publicUrl());
     return file.publicUrl();
 }
 
