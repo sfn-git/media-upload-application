@@ -23,6 +23,7 @@ function uploadFile(){
         contentType: false,
         success: (data)=>{
             if(data.success){
+                console.log(data);
                 var url = data.URL;
                 document.getElementById("upload-form").style.display = "none";
                 document.getElementById("message").style.display = "block";
