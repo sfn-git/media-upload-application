@@ -164,7 +164,6 @@ app.post("/upload", ensuredAuthenticated, (req,res)=>{
 
     var URL;
     var unique;
-    var isCorrect = true;
 
     var randomString = require("randomstring");
 
@@ -176,41 +175,38 @@ app.post("/upload", ensuredAuthenticated, (req,res)=>{
         var filePath = path.join(form.uploadDir, fileName);
         fs.renameSync(file.path, filePath);
 
-        URL = await uploadFile(fileName);
-        fs.unlinkSync(filePath);
-        var date = Date.now();
-
         if(fileExt == ".mp4"){
             try {
+                URL = await uploadFile(fileName);
+                console.log(URL);
+                fs.unlinkSync(filePath);
+                var date = Date.now();
                 await User.findByIdAndUpdate(req.user.id, {$push: {videos: {url: URL, fileName, unique, date}}});
+                res.send({success: true, URL: `${URL}`, unique});
             } catch (error) {
                 console.log(error);
             }
         }else if(fileExt == ".jpg" || fileExt == ".png"){
             try {
+                URL = await uploadFile(fileName);
+                fs.unlinkSync(filePath);
+                var date = Date.now();
                 await User.findByIdAndUpdate(req.user.id, {$push: {photos: {url: URL, fileName, unique, date}}});
+                res.send({success: true, URL: `${URL}`, unique});
             } catch (error) {
                 console.log(error);
+                res.status(500);
             }
         }else{
             console.log("Not the correct file type");
             fs.unlinkSync(filePath);
-            isCorrect = false;
+            res.send({success: false, message: "Failed to upload file. Please upload .mp4, .jpg, or .png only."});
         }
     });
 
     form.on('error', (err)=>{
         console.log(err);
         res.status(500);
-    });
-
-    form.on('end', ()=>{
-        if(isCorrect){
-            res.send({success: true, URL: `${URL}`, unique});
-        }else{
-            res.send({success: false, message: "Failed to upload file. Please upload .mp4, .jpg, or .png only."});
-        }
-        
     });
 
 });
