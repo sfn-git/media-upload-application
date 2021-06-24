@@ -151,6 +151,8 @@ ffmpeg.setFfprobePath(staticFfprobe);
 ffmpeg.setFfmpegPath(staticFfmpeg);
 var exec = require('child_process').exec;
 const users = require('./models/users');
+const uploadFile = require('./api/upload-google');
+const deleteFile = require('./api/delete-google');
 
 app.post("/upload", ensuredAuthenticated, (req,res)=>{
     const form = new formidable.IncomingForm();
@@ -174,10 +176,9 @@ app.post("/upload", ensuredAuthenticated, (req,res)=>{
         var filePath = path.join(form.uploadDir, fileName);
         fs.renameSync(file.path, filePath);
 
-        URL = `${SITE_URL}/content/${fileName}`;
+        URL = await uploadFile(fileName);
+        fs.unlinkSync(filePath);
         var date = Date.now();
-        var height;
-        var width;
 
         if(fileExt == ".mp4"){
             try {
@@ -205,7 +206,7 @@ app.post("/upload", ensuredAuthenticated, (req,res)=>{
 
     form.on('end', ()=>{
         if(isCorrect){
-            res.send({success: true, URL: `${SITE_URL}/view/${unique}`, unique});
+            res.send({success: true, URL: `${URL}`, unique});
         }else{
             res.send({success: false, message: "Failed to upload file. Please upload .mp4, .jpg, or .png only."});
         }
@@ -289,22 +290,22 @@ function getFileName(id, contentArray){
     return "dne";
 }
 
-function deleteFile(fileName){
-    var filePath = path.join(path.join(__dirname,"/content"),fileName);
-    if(fs.existsSync(filePath)){
-        try{
-            // File was removed
-            fs.unlinkSync(filePath);
-            return true;
-        }catch(e){
-            // Error while deleting file
-            return false;
-        }
-    }else{
-        // File is already deleted
-        return true;
-    }
-}
+// function deleteFile(fileName){
+//     var filePath = path.join(path.join(__dirname,"/content"),fileName);
+//     if(fs.existsSync(filePath)){
+//         try{
+//             // File was removed
+//             fs.unlinkSync(filePath);
+//             return true;
+//         }catch(e){
+//             // Error while deleting file
+//             return false;
+//         }
+//     }else{
+//         // File is already deleted
+//         return true;
+//     }
+// }
 // ----------------------------------------------------------------------------------------------------
 
 // -----------------------------------End-Points-------------------------------------------------------
@@ -322,17 +323,12 @@ app.delete("/video", ensuredAuthenticatedAPI, async (req, res)=>{
     var user = await User.findById(userID);
 
     var fileName = getFileName(id, user.videos).fileName;
-    var dbRemove = deleteFile(fileName);
+    await deleteFile(fileName);
 
-    if(dbRemove){
-        User.updateOne({_id: userID}, {$pull: {videos: {_id: id}}}, (err, document)=>{
-            if(err){res.status(500).send("Error");}
-            res.status(200).send("Deleted");
-        });
-    }else{
-        res.status(200).send("Unable to delete");
-    }
-
+    User.updateOne({_id: userID}, {$pull: {videos: {_id: id}}}, (err, document)=>{
+        if(err){res.status(500).send("Error");}
+        res.status(200).send("Deleted");
+    });
 });
 
 
