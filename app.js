@@ -13,10 +13,6 @@ app.use(express.urlencoded({extended: true}));
 
 // Database
 const User = require("./models/users");
-const MONGO_URI = process.env.MONGO_URI;
-require("mongoose").connect(MONGO_URI,{useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true, useFindAndModify: false},(err)=>{
-    if(err){console.log(err);}else{console.log("Connected to mongo");}
-});
 
 // Session
 var session = require('express-session');
@@ -151,8 +147,8 @@ ffmpeg.setFfprobePath(staticFfprobe);
 ffmpeg.setFfmpegPath(staticFfmpeg);
 var exec = require('child_process').exec;
 const users = require('./models/users');
-const uploadFile = require('./api/upload-google');
-const deleteFile = require('./api/delete-google');
+// const uploadFile = require('./api/upload-google');
+// const deleteFile = require('./api/delete-google');
 
 app.post("/upload", ensuredAuthenticated, (req,res)=>{
     const form = new formidable.IncomingForm();
@@ -177,9 +173,7 @@ app.post("/upload", ensuredAuthenticated, (req,res)=>{
 
         if(fileExt == ".mp4"){
             try {
-                URL = await uploadFile(fileName);
-                console.log(URL);
-                fs.unlinkSync(filePath);
+                URL = `${process.env.SITE_URL}/content/${fileName}`;
                 var date = Date.now();
                 await User.findByIdAndUpdate(req.user.id, {$push: {videos: {url: URL, fileName, unique, date}}});
                 res.send({success: true, URL: `${URL}`, unique});
@@ -188,8 +182,7 @@ app.post("/upload", ensuredAuthenticated, (req,res)=>{
             }
         }else if(fileExt == ".jpg" || fileExt == ".png"){
             try {
-                URL = await uploadFile(fileName);
-                fs.unlinkSync(filePath);
+                URL = `${process.env.SITE_URL}/content/${fileName}`;
                 var date = Date.now();
                 await User.findByIdAndUpdate(req.user.id, {$push: {photos: {url: URL, fileName, unique, date}}});
                 res.send({success: true, URL: `${URL}`, unique});

@@ -1,3 +1,7 @@
+const MONGO_URI = process.env.MONGO_URI;
+require("mongoose").connect(MONGO_URI,{useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true, useFindAndModify: false},(err)=>{
+    if(err){console.log(err);}else{console.log("Connected to mongo");}
+});
 const mongoose = require("mongoose");
 
 var users = new mongoose.Schema({
