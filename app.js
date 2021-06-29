@@ -149,6 +149,8 @@ var exec = require('child_process').exec;
 const users = require('./models/users');
 // const uploadFile = require('./api/upload-google');
 // const deleteFile = require('./api/delete-google');
+const uploadFile = require('./api/upload-s3');
+const deleteFile = require('./api/delete-s3');
 
 app.post("/upload", ensuredAuthenticated, (req,res)=>{
     const form = new formidable.IncomingForm();
@@ -169,11 +171,11 @@ app.post("/upload", ensuredAuthenticated, (req,res)=>{
         unique = randomString.generate(8);
         var fileName = `${unique}_${Date.now()}${fileExt}`;
         var filePath = path.join(form.uploadDir, fileName);
-        fs.renameSync(file.path, filePath);
+        var newFilePath = fs.renameSync(file.path, filePath);
 
         if(fileExt == ".mp4"){
             try {
-                URL = `${process.env.SITE_URL}/content/${fileName}`;
+                URL = await uploadFile(filePath, fileName);
                 var date = Date.now();
                 await User.findByIdAndUpdate(req.user.id, {$push: {videos: {url: URL, fileName, unique, date}}});
                 res.send({success: true, URL: `${URL}`, unique});
@@ -182,7 +184,7 @@ app.post("/upload", ensuredAuthenticated, (req,res)=>{
             }
         }else if(fileExt == ".jpg" || fileExt == ".png"){
             try {
-                URL = `${process.env.SITE_URL}/content/${fileName}`;
+                URL = await uploadFile(filePath, fileName);
                 var date = Date.now();
                 await User.findByIdAndUpdate(req.user.id, {$push: {photos: {url: URL, fileName, unique, date}}});
                 res.send({success: true, URL: `${URL}`, unique});
