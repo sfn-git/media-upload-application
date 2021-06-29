@@ -1,7 +1,7 @@
 const s3 = require("../config/s3");
 const fs = require('fs');
 
-const uploadFile = async (filePath, fileName)=>{
+const uploadFile = async (filePath, fileName, fileExt)=>{
     var fileExist = fs.existsSync(filePath);
     do{
         fileExist = fs.existsSync(filePath);
@@ -12,9 +12,17 @@ const uploadFile = async (filePath, fileName)=>{
         Bucket: process.env.SPACES_BUCKET_NAME,
         Key: fileName,
         Body: data,
-        ACL: "public-read",
-        ContentType: "video/mp4"
+        ACL: "public-read"
     };
+
+    if(fileExt == ".jpg"){
+        params.ContentType = "image/jpg";
+    }else if(fileExt == ".png"){
+        params.ContentType = "image/png";
+    }else if(fileExt == ".mp4"){
+        params.ContentType = "video/mp4";
+    }
+
 
     await s3.putObject(params).promise();
 

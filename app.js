@@ -171,11 +171,11 @@ app.post("/upload", ensuredAuthenticated, (req,res)=>{
         unique = randomString.generate(8);
         var fileName = `${unique}_${Date.now()}${fileExt}`;
         var filePath = path.join(form.uploadDir, fileName);
-        var newFilePath = fs.renameSync(file.path, filePath);
+        fs.renameSync(file.path, filePath);
 
         if(fileExt == ".mp4"){
             try {
-                URL = await uploadFile(filePath, fileName);
+                URL = await uploadFile(filePath, fileName, fileExt);
                 var date = Date.now();
                 await User.findByIdAndUpdate(req.user.id, {$push: {videos: {url: URL, fileName, unique, date}}});
                 res.send({success: true, URL: `${URL}`, unique});
@@ -184,7 +184,7 @@ app.post("/upload", ensuredAuthenticated, (req,res)=>{
             }
         }else if(fileExt == ".jpg" || fileExt == ".png"){
             try {
-                URL = await uploadFile(filePath, fileName);
+                URL = await uploadFile(filePath, fileName, fileExt);
                 var date = Date.now();
                 await User.findByIdAndUpdate(req.user.id, {$push: {photos: {url: URL, fileName, unique, date}}});
                 res.send({success: true, URL: `${URL}`, unique});
