@@ -241,6 +241,7 @@ app.get("/profile/:id", ensuredAuthenticated, async (req,res)=>{
 
         var photos = user.photos;
         var videos = user.videos;
+        var files = user.files;
 
         videos.sort((a, b)=>{
             return new Date(b.date) - new Date(a.date);
@@ -248,7 +249,10 @@ app.get("/profile/:id", ensuredAuthenticated, async (req,res)=>{
         photos.sort((a, b)=>{
             return new Date(b.date) - new Date(a.date);
         });
-        res.render("me", {user, videos: user.videos, photos, admin: true});
+        files.sort((a, b)=>{
+            return new Date(b.date) - new Date(a.date);
+        });
+        res.render("me", {user, videos: user.videos, photos, admin: true, files});
     }else{
         res.render("404");
     }
