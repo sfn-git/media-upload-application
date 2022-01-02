@@ -104,6 +104,7 @@ app.post("/create",
         "rank": "user",
         "photos": [],
         "videos": [],
+        "files": [],
         "accountCreated": Date.now()
     });
     user.save((err, document)=>{
@@ -193,9 +194,13 @@ app.post("/upload", ensuredAuthenticated, (req,res)=>{
                 res.status(500);
             }
         }else{
-            console.log("Not the correct file type");
-            fs.unlinkSync(filePath);
-            res.send({success: false, message: "Failed to upload file. Please upload .mp4, .jpg, or .png only."});
+            URL = await uploadFile(filePath, fileName, fileExt);
+            var date = Date.now();
+            await User.findByIdAndUpdate(req.user.id, {$push: {files: {url: URL, fileName, unique, date}}});
+            res.send({success: true, URL: `${URL}`, unique});
+            // console.log("Not the correct file type");
+            // fs.unlinkSync(filePath);
+            // res.send({success: false, message: "Failed to upload file. Please upload .mp4, .jpg, or .png only."});
         }
     });
 
@@ -212,6 +217,7 @@ app.get("/me", ensuredAuthenticated, async (req,res)=>{
 
     var photos = user.photos;
     var videos = user.videos;
+    var files = user.files
 
     videos.sort((a, b)=>{
         return new Date(b.date) - new Date(a.date);
@@ -219,7 +225,11 @@ app.get("/me", ensuredAuthenticated, async (req,res)=>{
     photos.sort((a, b)=>{
         return new Date(b.date) - new Date(a.date);
     });
-    res.render("me", {user, videos: user.videos, photos});
+
+    files.sort((a,b)=>{
+        return new Date(b.date) - new Date(a.date);
+    })
+    res.render("me", {user, videos: user.videos, photos, files});
 
 });
 
@@ -340,6 +350,32 @@ app.delete("/photo", ensuredAuthenticatedAPI, async (req, res)=>{
 
     if(dbRemove){
         User.updateOne({_id: userID}, {$pull: {photos: {_id: id}}}, (err, document)=>{
+            if(err){res.status(500).send("Error");}
+            res.status(200).send("Deleted");
+        });
+    }else{
+        res.status(200).send("Unable to delete");
+    }
+
+});
+
+app.delete("/file", ensuredAuthenticatedAPI, async (req, res)=>{
+    var id = req.body.id;
+    var userID;
+    if(req.body.isAdmin === "true"){
+        if(req.user.rank === "Admin"){
+            userID = req.body.userID;
+        }
+    }else{
+        userID = req.user.id;
+    }
+    var user = await User.findById(userID);
+    
+    var fileName = getFileName(id, user.files).fileName;
+    var dbRemove = deleteFile(fileName);
+
+    if(dbRemove){
+        User.updateOne({_id: userID}, {$pull: {files: {_id: id}}}, (err, document)=>{
             if(err){res.status(500).send("Error");}
             res.status(200).send("Deleted");
         });

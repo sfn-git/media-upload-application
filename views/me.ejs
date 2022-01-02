@@ -93,6 +93,44 @@
                     <%}%>
                 <tbody>
             </table>
+            <% if(!(typeof admin === "undefined")){%>
+                <h1 id="photos">Files</h1>
+            <%}else{%>
+                <h1 id="photos">Your Files</h1>
+            <%}%>
+
+            <!-- Files -->
+            <table class="table table-sm">
+                <thead>
+                    <tr>
+                        <th scope="col">Name</th>
+                        <th scope="col">Upload Date</th>
+                        <th scope="col">Direct File</th>
+                        <th scope="col">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% for(var i in files){ %>
+                        <tr>
+                            
+                            <td>
+                                <input type="text" value="<%= files[i].name %>" id="input_<%=files[i].unique%>" style="display: none;">
+                                <span id="name_<%=files[i].unique%>" style="font-weight: bold;"><%= files[i].name %></span> 
+                            </td>
+                            <td><%=`${files[i].date.getMonth() + 1}/${files[i].date.getDate()}/${files[i].date.getFullYear()}`%></td>
+                            <td><a href="<%=files[i].url%>" target="_blank" ><%= files[i].fileName%></a></td>
+                            <td>
+                                <button type="button" class="btn btn-warning" onclick="editName('<%=files[i].unique%>')" id="edit_<%=files[i].unique%>">Edit</button>
+                                <span id="action_group_<%=files[i].unique%>" style="display: none;">
+                                    <button type="button" class="btn btn-success" onclick="saveName('<%=files[i].unique%>')">Save</button>
+                                    <button type="button" class="btn btn-secondary" onclick="cancelEditName('<%=files[i].unique%>')">Cancel</button>
+                                </span>
+                                <button type="button" class="btn btn-danger" onclick="deleteFile('<%=files[i].id%>')">Delete</button>
+                            </td>
+                        </tr>
+                    <%}%>
+                <tbody>
+            </table>
         </div>
         
     </div>
