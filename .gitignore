@@ -128,3 +128,4 @@ content/
 .history/
 .vscode/settings.json
 media-share*.json
+secret.json
