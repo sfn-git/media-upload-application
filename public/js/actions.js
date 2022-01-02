@@ -38,6 +38,26 @@ function deletePhoto(id){
 
 }
 
+function deleteFile(id){
+
+    if(window.confirm("Are you sure you would like to delete this content?")){
+        $.ajax({
+            url: "/file",
+            method: "DELETE",
+            data: {id},
+            success: (data)=>{
+                window.alert(data);
+                window.location.reload();
+            },
+            error: (err)=>{
+                window.alert("Could not delete");
+                window.location.reload();
+            }
+        });
+    }
+
+}
+
 function editName(unique){
 
     var input = document.getElementById(`input_${unique}`);

@@ -29,6 +29,13 @@ var users = new mongoose.Schema({
         thumbNail: {type: String},
         thumbNailURL: {type: String}
     }],
+    "files":[{
+        url: {type: String},
+        name: {type: String},
+        date: {type: Date},
+        fileName: {type: String},
+        unique: {type: String, sparse: true}
+    }],
     "rank": {type: String},
     "accountCreated": {type: Date, required: true}
 

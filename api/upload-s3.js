@@ -23,7 +23,6 @@ const uploadFile = async (filePath, fileName, fileExt)=>{
         params.ContentType = "video/mp4";
     }
 
-
     await s3.putObject(params).promise();
 
     fs.unlinkSync(filePath);
